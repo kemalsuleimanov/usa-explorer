@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>USA Explorer</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+        font-family:Poppins,sans-serif;
+        }
+
+        body{
+        background:linear-gradient(-45deg,#0f172a,#1e3a8a,#2563eb,#06b6d4);
+        background-size:400% 400%;
+        animation:gradient 15s ease infinite;
+        min-height:100vh;
+        padding:30px;
+        color:white;
+        }
+
+        @keyframes gradient{
+        0%{background-position:0% 50%}
+        50%{background-position:100% 50%}
+        100%{background-position:0% 50%}
+        }
+
+        header{
+        text-align:center;
+        margin-bottom:30px;
+        }
+
+        header h1{
+        font-size:3rem;
+        margin-bottom:10px;
+        }
+
+        .search{
+        max-width:700px;
+        margin:auto auto 30px;
+        }
+
+        .search input{
+        width:100%;
+        padding:16px;
+        border:none;
+        border-radius:20px;
+        background:rgba(255,255,255,.15);
+        backdrop-filter:blur(10px);
+        color:white;
+        font-size:16px;
+        }
+
+        .stats{
+        display:flex;
+        justify-content:center;
+        gap:20px;
+        flex-wrap:wrap;
+        margin-bottom:30px;
+        }
+
+        .stat{
+        background:rgba(255,255,255,.12);
+        backdrop-filter:blur(10px);
+        padding:20px;
+        border-radius:20px;
+        min-width:180px;
+        text-align:center;
+        }
+
+        .grid{
+        display:grid;
+        grid-template-columns:repeat(auto-fill,minmax(340px,1fr));
+        gap:20px;
+        }
+
+        .card{
+        background:rgba(255,255,255,.12);
+        backdrop-filter:blur(15px);
+        border-radius:20px;
+        overflow:hidden;
+        transition:.3s;
+        }
+
+        .card:hover{
+        transform:translateY(-6px);
+        }
+
+        .flag{
+        width:100%;
+        height:180px;
+        object-fit:cover;
+        }
+
+        .content{
+        padding:18px;
+        }
+
+        .state{
+        font-size:1.4rem;
+        font-weight:600;
+        margin-bottom:10px;
+        }
+
+        .row{
+        display:flex;
+        justify-content:space-between;
+        margin:8px 0;
+        font-size:.9rem;
+        }
+
+        .label{
+        opacity:.7;
+        }
+
+        .time{
+        color:#facc15;
+        font-weight:600;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>🇺🇸 United States Explorer</h1>
+    <p>States • Capitals • Population • Area • Time Zones</p>
+</header>
+
+<div class="search">
+    <input id="search" placeholder="Search state...">
+</div>
+
+<div class="stats">
+    <div class="stat">
+        <h2>50</h2>
+        <p>States</p>
+    </div>
+
+    <div class="stat">
+        <h2>333M+</h2>
+        <p>Population</p>
+    </div>
+
+    <div class="stat">
+        <h2>9.8M km²</h2>
+        <p>Total Area</p>
+    </div>
+</div>
+
+<div id="states" class="grid"></div>
+
+<script>
+
+    const states = [
+    {
+    name:"Illinois",
+    capital:"Springfield",
+    population:"12.6M",
+    area:"149,995 km²",
+    region:"Midwest",
+    timezone:"America/Chicago",
+    flag:"https://flagcdn.com/w640/us-il.png"
+    },
+    {
+    name:"California",
+    capital:"Sacramento",
+    population:"39M",
+    area:"423,970 km²",
+    region:"West",
+    timezone:"America/Los_Angeles",
+    flag:"https://flagcdn.com/w640/us-ca.png"
+    },
+    {
+    name:"Texas",
+    capital:"Austin",
+    population:"30M",
+    area:"695,662 km²",
+    region:"South",
+    timezone:"America/Chicago",
+    flag:"https://flagcdn.com/w640/us-tx.png"
+    },
+    {
+    name:"Florida",
+    capital:"Tallahassee",
+    population:"22M",
+    area:"170,312 km²",
+    region:"South",
+    timezone:"America/New_York",
+    flag:"https://flagcdn.com/w640/us-fl.png"
+    },
+    {
+    name:"New York",
+    capital:"Albany",
+    population:"19.6M",
+    area:"141,297 km²",
+    region:"Northeast",
+    timezone:"America/New_York",
+    flag:"https://flagcdn.com/w640/us-ny.png"
+    },
+    {
+    name:"Washington",
+    capital:"Olympia",
+    population:"8M",
+    area:"184,827 km²",
+    region:"West",
+    timezone:"America/Los_Angeles",
+    flag:"https://flagcdn.com/w640/us-wa.png"
+    },
+    {
+    name:"Arizona",
+    capital:"Phoenix",
+    population:"7.4M",
+    area:"295,234 km²",
+    region:"West",
+    timezone:"America/Phoenix",
+    flag:"https://flagcdn.com/w640/us-az.png"
+    },
+    {
+    name:"Colorado",
+    capital:"Denver",
+    population:"5.9M",
+    area:"269,601 km²",
+    region:"West",
+    timezone:"America/Denver",
+    flag:"https://flagcdn.com/w640/us-co.png"
+    }
+    ];
+
+    function getTime(zone){
+    return new Date().toLocaleTimeString(
+    'en-US',
+    {
+    timeZone:zone,
+    hour:'2-digit',
+    minute:'2-digit',
+    second:'2-digit'
+    }
+    );
+    }
+
+    function render(data){
+
+    document.getElementById("states").innerHTML =
+    data.map(state=>`
+
+    <div class="card">
+
+    <img class="flag"
+    src="${state.flag}"
+    alt="${state.name}">
+
+    <div class="content">
+
+    <div class="state">
+    ${state.name}
+    </div>
+
+    <div class="row">
+    <span class="label">Capital</span>
+    <span>${state.capital}</span>
+    </div>
+
+    <div class="row">
+    <span class="label">Population</span>
+    <span>${state.population}</span>
+    </div>
+
+    <div class="row">
+    <span class="label">Area</span>
+    <span>${state.area}</span>
+    </div>
+
+    <div class="row">
+    <span class="label">Region</span>
+    <span>${state.region}</span>
+    </div>
+
+    <div class="row">
+    <span class="label">Local Time</span>
+    <span class="time">
+    ${getTime(state.timezone)}
+    </span>
+    </div>
+
+    </div>
+    </div>
+
+    `).join("");
+    }
+
+    render(states);
+
+    setInterval(()=>render(filter()),1000);
+
+    function filter(){
+    const value =
+    document.getElementById("search")
+    .value
+    .toLowerCase();
+
+    return states.filter(s =>
+    s.name.toLowerCase().includes(value)
+    );
+    }
+
+    document
+    .getElementById("search")
+    .addEventListener("input",()=>{
+    render(filter());
+    });
+
+</script>
+
+</body>
+</html>
